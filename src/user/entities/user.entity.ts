@@ -1,11 +1,12 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { UserStatus } from "./user-status.enum";
+import { UserStatus } from "./enums/user-status.enum";
+import { UserType } from "./enums/user-type.enum";
 
-@Entity()
+@Entity('users')
 export class User {
 
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
     @Column({type: 'varchar', length: 15})
     username: string;
@@ -15,6 +16,13 @@ export class User {
 
     @Column({type: 'varchar'})
     password:string;
+
+    @Column({
+        type: 'enum',
+        enum: UserType,
+        nullable: true,
+    })
+    user_type: UserType;
 
     @Column({
         type: 'enum',

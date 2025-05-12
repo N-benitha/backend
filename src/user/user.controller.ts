@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, Res, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, Res, Req, UnauthorizedException, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { Request, response, Response } from 'express';
+import { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 
 @Controller('auth')
@@ -48,7 +48,13 @@ export class UserController {
     response.cookie('jwt', jwt, {httpOnly: true});
 
     return {
-      message: "success"
+      message: "Login successful",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        status: user.status,
+      }
     };
   }
 
@@ -84,28 +90,60 @@ export class UserController {
 
   }
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  async findAll() {
+    const users = await this.userService.findAll();
+    return {
+      users: users.map((user) => ({
+        id: user.id,
+        username: user.username,
+        user_type: user.user_type
+      }))
+    };
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.userService.findOne(+id);
-  // }
+  @Post('create')
+  async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    const {username, email, password, user_type, status} = createUserDto;
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const user = await this.userService.create({
+      username,
+      email,
+      password: hashedPassword,
+      user_type,
+      status
+    });
+    const {password: _password, ...result} = user;
+    
+    return {
+      message: "User created",
+      result
+    }
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const user = await this.userService.findOne({where: {id}});
+    return {
+      id: user?.id,
+      username: user?.username,
+      user_type: user?.user_type,
+      status: user?.status,
+    }
+  }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  update(@Param('id') id: string, @Body(ValidationPipe) updateUserDto: UpdateUserDto) {
+    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    const deleted = this.userService.remove(id);
+    return {
+      message: "User deleted",
+      deleted
+    }
   }
 }
