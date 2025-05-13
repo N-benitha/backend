@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { title } from 'process';
 
 @Controller('project')
 export class ProjectController {
@@ -14,7 +15,14 @@ export class ProjectController {
 
   @Get('all-projects')
   async findAll() {
-    return this.projectService.findAll();
+    const projects = await this.projectService.findAll();
+    return {
+      projects: projects.map((project) => ({
+        id: project.id,
+        title: project.title,
+        description: project.description
+      }))
+    };
   }
 
   @Get(':id')
@@ -29,6 +37,10 @@ export class ProjectController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.projectService.remove(id);
+    const project = this.projectService.remove(id);
+    return {
+      message: "Project deleted",
+      project
+    }
   }
 }

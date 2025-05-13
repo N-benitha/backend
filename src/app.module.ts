@@ -6,6 +6,8 @@ import { typeOrmConfig } from './typeorm.config'
 import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ChangeRequestModule } from './change-request/change-request.module';
+import { UserProjectModule } from './user-project/user-project.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     UserModule,
     ProjectModule,
+    ChangeRequestModule,
+    UserProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],
