@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreateChangeRequestDto } from './dto/create-change-request.dto';
 import { UpdateChangeRequestDto } from './dto/update-change-request.dto';
+import { FindManyOptions, Repository } from 'typeorm';
+import { ChangeRequest } from './entities/change-request.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ChangeRequestService {
-  create(createChangeRequestDto: CreateChangeRequestDto) {
-    return 'This action adds a new changeRequest';
+  constructor(
+    @InjectRepository(ChangeRequest)
+    private changeRequestService: Repository<ChangeRequest>
+  ) {}
+
+  async create(createChangeRequestDto: CreateChangeRequestDto): Promise<ChangeRequest> {
+    return this.changeRequestService.save(createChangeRequestDto);
   }
 
-  findAll() {
-    return `This action returns all changeRequest`;
+  async findAll(): Promise<ChangeRequest[]> {
+    return this.changeRequestService.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} changeRequest`;
+  async findOne(options: FindManyOptions<ChangeRequest>): Promise<ChangeRequest | null> {
+    return this.changeRequestService.findOne(options);
   }
 
-  update(id: number, updateChangeRequestDto: UpdateChangeRequestDto) {
-    return `This action updates a #${id} changeRequest`;
+  async update(id: string, updateChangeRequestDto: UpdateChangeRequestDto) {
+    return this.changeRequestService.update(id, updateChangeRequestDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} changeRequest`;
+  async remove(id: string): Promise<void> {
+    await this.changeRequestService.delete(id);
   }
 }

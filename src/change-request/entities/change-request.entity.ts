@@ -9,7 +9,7 @@ export class ChangeRequest {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({type: 'varchar', length: 15})
+    @Column({type: 'varchar', length: 100})
     description: string;
 
     @ManyToOne(() => Project, (project) => project.changeRequests, { onDelete: 'CASCADE' })
