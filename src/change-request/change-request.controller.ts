@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ChangeRequestService } from './change-request.service';
 import { CreateChangeRequestDto } from './dto/create-change-request.dto';
 import { UpdateChangeRequestDto } from './dto/update-change-request.dto';
-import { title } from 'process';
 
 @Controller('change-request')
 export class ChangeRequestController {
@@ -21,6 +20,8 @@ export class ChangeRequestController {
       changeRequests.map((changeRequest) => ({
         id: changeRequest.id,
         description: changeRequest.description,
+        projectId: changeRequest.project,
+        userId: changeRequest.user,
         request_type: changeRequest.request_type,
         status: changeRequest.status,
         deployment_date: changeRequest.deployment_date
@@ -31,6 +32,21 @@ export class ChangeRequestController {
   // @Get('')
   // findByDate(@Body() date: Date) {
   //   const changeRequest = this.changeRequestService.findOne({where: {date}})
+  // }
+
+  @Get('query')
+  async findWithFilters(@Query() filters) {
+    return this.changeRequestService.findWithFilters(filters);
+  }
+
+  // @Get(':/projectId')
+  // async findByProject(@Param('projectId') projectId: string) {
+  //   return this.changeRequestService.findByProject(projectId);
+  // }
+
+  // @Get(':/userId')
+  // async findByUser(@Param('userId') userId: string) {
+  //   return this.changeRequestService.findByProject(userId);
   // }
 
   @Get(':id')

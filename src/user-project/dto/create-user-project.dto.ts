@@ -1,1 +1,5 @@
-export class CreateUserProjectDto {}
+export class CreateUserProjectDto {
+    userId: string;
+
+    projectId: string;
+}

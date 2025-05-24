@@ -1,5 +1,6 @@
 export enum RequestStatus {
     PENDING = "pending",
     APPROVED = "approved",
-    ROLLEDBACK = "rolledback"
+    ROLLEDBACK = "rolledback",
+    DEPLOYED = "deployed"
 }

@@ -8,7 +8,7 @@ export class UserProjectController {
   constructor(private readonly userProjectService: UserProjectService) {}
 
   @Post()
-  create(@Body() createUserProjectDto: CreateUserProjectDto) {
+  async create(@Body() createUserProjectDto: CreateUserProjectDto) {
     return this.userProjectService.create(createUserProjectDto);
   }
 
@@ -17,18 +17,61 @@ export class UserProjectController {
     return this.userProjectService.findAll();
   }
 
+  @Delete()
+  async removeUserProject(@Body() data: { userId: string, projectId: string}) {
+    console.log('Removing user-project with:', data);
+    try {
+      const userProjects = await this.userProjectService.findUserProjectByUserAndProject(
+        data.userId,
+        data.projectId
+      );
+      if (!userProjects.length) throw new Error('User-project association not found');
+
+      await this.userProjectService.remove(userProjects[0].id);
+
+      return {
+        message: "Project successfully unassigned from user",
+        removed: userProjects[0]
+      };
+    } catch (error) {
+      console.error('Failed to remove user-project', error);
+      throw error;      
+    }
+    
+  }
+
+  @Get('by-user/:userId')
+  async findByUser(@Param('userId') userId: string) {
+    console.log(`Finding projects for user: ${userId}`);
+    try {
+      const userProjects = await this.userProjectService.findUserProjects(userId);
+
+      const projects = userProjects.map(up => up.project);
+      console.log(`Found ${projects.length} projects for user ${userId}`);
+      return projects;      
+    } catch (error) {
+      console.error(`Error finding projects for user ${userId}:`, error);
+      throw error;
+    }
+    
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userProjectService.findOne(+id);
+    return this.userProjectService.findOne({where: {id}});
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserProjectDto: UpdateUserProjectDto) {
-    return this.userProjectService.update(+id, updateUserProjectDto);
+    return this.userProjectService.update(id, updateUserProjectDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userProjectService.remove(+id);
+    const userProjects = this.userProjectService.remove(id);
+    return {
+      message: "Use-project association deleted",
+      userProjects
+    }
   }
 }

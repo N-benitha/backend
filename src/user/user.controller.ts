@@ -1,12 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, Res, Req, UnauthorizedException, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, Res, Req, UnauthorizedException, ValidationPipe, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
-@Controller('auth')
+@UseGuards(AuthGuard)
+@Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -58,7 +60,7 @@ export class UserController {
     };
   }
 
-  @Get('user')
+  @Get('token')
   async user(@Req() request: Request)  {
     try {
       const cookie = request.cookies['jwt'];

@@ -8,6 +8,7 @@ import { ProjectModule } from './project/project.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ChangeRequestModule } from './change-request/change-request.module';
 import { UserProjectModule } from './user-project/user-project.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserProjectModule } from './user-project/user-project.module';
     ProjectModule,
     ChangeRequestModule,
     UserProjectModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

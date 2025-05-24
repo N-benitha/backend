@@ -5,7 +5,7 @@ export class CreateProjectDto {
         @IsString()
         title: string;
     
-        @IsNotEmpty()
+        @IsNotEmpty({ message: 'DEscription should not be empty'})
         @IsString()
         description: string;
 
