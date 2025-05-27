@@ -2,97 +2,21 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException,
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtService } from '@nestjs/jwt';
-import { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserType } from './entities/enums/user-type.enum';
 
-@UseGuards(AuthGuard)
-@Controller('user')
+@UseGuards(AuthGuard, RolesGuard)
+@Controller('users')
 export class UserController {
   constructor(
-    private readonly userService: UserService,
-    private jwtService: JwtService
+    private readonly userService: UserService
   ) {}
 
-  @Post('signup')
-  async signup(
-    @Body('username') username: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    const user = await this.userService.create({
-      username,
-      email,
-      password: hashedPassword
-    });
-    const {password: _password, ...result} = user;
-    
-    return result;
-  }
-
-  @Post('login')
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Res({passthrough: true} ) response: Response
-  ) {
-    const user = await this.userService.findOne({where: {email}});
-
-    if (!user) throw new BadRequestException('Invalid credentials');
-    
-    if (!await bcrypt.compare(password, user.password)) throw new BadRequestException('Invalid credentials');
-
-    const jwt = await this.jwtService.signAsync({id: user.id})
-
-    response.cookie('jwt', jwt, {httpOnly: true});
-
-    return {
-      message: "Login successful",
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        status: user.status,
-      }
-    };
-  }
-
-  @Get('token')
-  async user(@Req() request: Request)  {
-    try {
-      const cookie = request.cookies['jwt'];
-      if (!cookie) throw new UnauthorizedException('No token provided');
-
-      const data = await this.jwtService.verifyAsync(cookie);
-
-      if (!data) throw new UnauthorizedException('Invalid token');
-
-      const user = await this.userService.findOne({where: {id: data['id']}});
-
-      if (!user) throw new UnauthorizedException('Invalid token');
-
-      const {password, ...result} = user;
-    
-      return result;
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
-  }
-
-  @Post('logout')
-  async logout(@Res({passthrough: true}) response: Response) {
-    response.clearCookie('jwt');
-
-    return {
-      message: "success"
-    }
-
-  }
-
   @Get()
+  @Roles(UserType.ADMIN)
   async findAll() {
     const users = await this.userService.findAll();
     return {
@@ -105,6 +29,7 @@ export class UserController {
   }
 
   @Post('create')
+  @Roles(UserType.ADMIN)
   async create(@Body(ValidationPipe) createUserDto: CreateUserDto) {
     const {username, email, password, user_type, status} = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -125,6 +50,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @Roles(UserType.ADMIN, UserType.APPROVER)
   async findOne(@Param('id') id: string) {
     const user = await this.userService.findOne({where: {id}});
     return {
@@ -136,11 +62,13 @@ export class UserController {
   }
 
   @Patch(':id')
+  @Roles(UserType.ADMIN)
   update(@Param('id') id: string, @Body(ValidationPipe) updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
+  @Roles(UserType.ADMIN)
   remove(@Param('id') id: string) {
     const deleted = this.userService.remove(id);
     return {

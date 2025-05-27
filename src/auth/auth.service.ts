@@ -3,16 +3,26 @@ import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
-type AuthInput = { email: string, password: string };
-type SignInData = { userId: string, username: string, email: string, status: string };
+type AuthInput = { 
+    email: string; 
+    password: string;
+};
+type SignInData = { 
+    userId: string;
+    username: string;
+    email: string;
+    user_type: string;
+    status: string;
+};
 type AuthResult = { 
-    message: string,
+    message: string;
     user: {
-        accessToken: string, 
-        id: string, 
-        username: string,
-        email: string,
-        status: string
+        accessToken: string;
+        id: string;
+        username: string;
+        email: string;
+        user_type: string;
+        status: string;
     }
 };
 
@@ -26,7 +36,7 @@ export class AuthService {
     async authenticate(input: AuthInput): Promise<AuthResult | null> {
         const user = await this.validateUser(input);
 
-        if (!user) throw new UnauthorizedException();
+        if (!user) throw new UnauthorizedException('Invalid Credentials');
 
         return this.signIn(user);
     }
@@ -34,11 +44,12 @@ export class AuthService {
     async validateUser(input: AuthInput): Promise<SignInData | null> {
         const user = await this.userSerice.findOne({where: {email: input.email}});
 
-        if (user && await bcrypt.compare(user.password, input.password)) {
+        if (user && (await bcrypt.compare(input.password, user.password))) {
             return {
                 userId: user.id,
                 username: user.username,
                 email: user.email,
+                user_type: user.user_type,
                 status: user.status,
             };
         }
@@ -50,10 +61,11 @@ export class AuthService {
             const payload = { 
                 id: user.userId,
                 username: user.username,
-                email: user.email, 
-                status: user.status 
+                email: user.email,
+                user_type: user.user_type,
+                status: user.status,
             };
-            
+
             const accessToken = await this.jwtService.signAsync(payload);          
         
             return {
@@ -63,11 +75,12 @@ export class AuthService {
                     id: user.userId,
                     username: user.username,
                     email: user.email,
+                    user_type: user.user_type,
                     status: user.status,
                 }
             };
         } catch (e) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('Failed to generate token');
         }
     }
 }

@@ -1,7 +1,11 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import * as bcrypt from 'bcrypt';
 import { UserService } from 'src/user/user.service';
+import { Response } from 'express';
+import { AuthGuard } from './guards/auth.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { UserType } from 'src/user/entities/enums/user-type.enum';
 
 @Controller('auth')
 export class AuthController {
@@ -15,7 +19,20 @@ export class AuthController {
         @Body() input: {email: string, password: string},
         @Res({passthrough: true} ) response: Response
       ) {
-        return this.authService.authenticate(input);
+        const result = await this.authService.authenticate(input);
+
+        response.cookie('jwt', result?.user.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
+        const redirectPath = this.getRedirectPathByRole(result?.user.user_type ?? '');
+
+        return {
+            ...result,
+            redirectPath
+        };
       }
     
     @Post('signup')
@@ -36,6 +53,90 @@ export class AuthController {
         });
         const {password: _password, ...result} = user;
         
-        return result;
-      }
+        return {
+            message: "User registered successfully",
+            result
+        };
+    }
+
+    @Post('logout')
+    @UseGuards(AuthGuard)
+    async logout(@Res({passthrough: true}) response: Response) {
+        response.clearCookie('jwt', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
+        return {
+            message: 'Logout successful'
+        };
+    }
+
+    @Get('me')
+    @UseGuards(AuthGuard)
+    async getCurrentUser(@CurrentUser() user: any) {
+        const redirectPath = this.getRedirectPathByRole(user.user_type);
+
+        return {
+            message: 'User retrieved successfully',
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                user_type: user.user_type,
+                status: user.status
+            },
+            redirectPath
+        };
+    }
+
+    @Post('refresh')
+    @UseGuards(AuthGuard)
+    async refreshToken(
+        @CurrentUser() user: any,
+        @Res({ passthrough: true }) response: Response
+    ) {
+        // Generate a new token
+        const result = await this.authService.signIn({
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        user_type: user.user_type,
+        status: user.status,
+        });
+
+        // Set new JWT cookie
+        response.cookie('jwt', result?.user.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        });
+
+        const redirectPath = this.getRedirectPathByRole(user.user_type);
+
+        return {
+        message: 'Token refreshed successfully',
+        user: result?.user,
+        redirectPath
+        };
+    }
+
+    private getRedirectPathByRole(userType: string): string {
+        switch(userType) {
+            case UserType.ADMIN:
+                return 'dashboard/admin';
+            
+            case UserType.APPROVER:
+                return 'dashboard/approver';
+
+            case UserType.DEVELOPER:
+                return 'dashboard/developer';
+
+            default:
+                return '/dashboard'; //fallback roure
+        }
+    }
+
 }
