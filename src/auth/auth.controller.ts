@@ -126,16 +126,16 @@ export class AuthController {
     private getRedirectPathByRole(userType: string): string {
         switch(userType) {
             case UserType.ADMIN:
-                return 'dashboard/admin';
+                return 'dashboards/admin';
             
             case UserType.APPROVER:
-                return 'dashboard/approver';
+                return 'dashboards/approver';
 
             case UserType.DEVELOPER:
-                return 'dashboard/developer';
+                return 'dashboards/developer';
 
             default:
-                return '/dashboard'; //fallback roure
+                return '/dashboards'; //fallback roure
         }
     }
 
