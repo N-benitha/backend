@@ -1,4 +1,4 @@
-import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 import { RequestType } from "../entities/enums/request-type.enum";
 import { RequestStatus } from "../entities/enums/request-status.enum";
 
@@ -22,4 +22,12 @@ export class CreateChangeRequestDto {
     @IsDateString()
     @IsOptional()
     deployment_date: string;
+
+    @IsNotEmpty()
+    @IsUUID()
+    userId: string;
+
+    @IsNotEmpty()
+    @IsUUID()
+    projectId: string;
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { UserProjectService } from './user-project.service';
 import { CreateUserProjectDto } from './dto/create-user-project.dto';
 import { UpdateUserProjectDto } from './dto/update-user-project.dto';
@@ -12,9 +12,25 @@ export class UserProjectController {
     return this.userProjectService.create(createUserProjectDto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.userProjectService.findAll();
+  }
+
+  @Get()
+  async findByUser(@Query('userId') userId: string) {
+    console.log(`Finding projects for user: ${userId}`);
+    try {
+      const userProjects = await this.userProjectService.findUserProjects(userId);
+
+      const projects = userProjects.map(up => up.project);
+      console.log(`Found ${projects.length} projects for user ${userId}`);
+      return projects;      
+    } catch (error) {
+      console.error(`Error finding projects for user ${userId}:`, error);
+      throw error;
+    }
+    
   }
 
   @Delete()
@@ -36,22 +52,6 @@ export class UserProjectController {
     } catch (error) {
       console.error('Failed to remove user-project', error);
       throw error;      
-    }
-    
-  }
-
-  @Get('by-user/:userId')
-  async findByUser(@Param('userId') userId: string) {
-    console.log(`Finding projects for user: ${userId}`);
-    try {
-      const userProjects = await this.userProjectService.findUserProjects(userId);
-
-      const projects = userProjects.map(up => up.project);
-      console.log(`Found ${projects.length} projects for user ${userId}`);
-      return projects;      
-    } catch (error) {
-      console.error(`Error finding projects for user ${userId}:`, error);
-      throw error;
     }
     
   }
