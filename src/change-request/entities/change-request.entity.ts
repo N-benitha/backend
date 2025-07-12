@@ -35,6 +35,12 @@ export class ChangeRequest {
     @Column({ nullable: true})
     deployment_date: Date;
 
+    @Column({
+        type: 'text',
+        nullable: true
+    })
+    reason?: string;
+
     @CreateDateColumn()
     created_at: Date;
 

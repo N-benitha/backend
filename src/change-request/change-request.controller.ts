@@ -20,11 +20,13 @@ export class ChangeRequestController {
       changeRequests.map((changeRequest) => ({
         id: changeRequest.id,
         description: changeRequest.description,
-        projectId: changeRequest.project,
-        userId: changeRequest.user,
+        project: changeRequest.project,
+        user: changeRequest.user,
         request_type: changeRequest.request_type,
         status: changeRequest.status,
-        deployment_date: changeRequest.deployment_date
+        deployment_date: changeRequest.deployment_date,
+        created_at: changeRequest.created_at,
+        updated_at: changeRequest.updated_at
       }))
     };
   }
