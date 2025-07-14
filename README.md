@@ -1,10 +1,20 @@
-# Change Request Tracking System
-  ![alt banner](crts.png)
+# Change Request Tracking System (CRTS)
+<p align="center">
+  <img src="crts.png" alt="Centered Image"/>
+</p>
 
-Like any software team, we’ve all felt the frustration of chasing down change requests, lost email threads, and unclear deployment histories. I experienced it firsthand while working on various projects, where keeping track of who requested what, when it was deployed, and what issues followed could become chaotic quickly. That challenge led me to build the Change Request Tracking System (CRTS), a comprehensive, full-stack web application designed to centralize and streamline the management of software change requests across development projects. In environments where accountability and traceability are crucial for quality delivery, CRTS has your back. It keeps projects organized, teams informed, and change management transparent, because when systems work smoothly, so do people.
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/React-61DBFB?style=for-the-badge&logo=react&logoColor=61DBFB&labelColor=black" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&labelColor=black" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&labelColor=black" /></a>
+</p>
+
+<p align="center">
+  A comprehensive full-stack web application for managing software change requests across development projects. Built with modern technologies and featuring role-based access control for efficient project management.
+</p>
 
 ## Overview
-A comprehensive full-stack web application for managing software change requests across development projects. Built with modern technologies and featuring role-based access control for efficient project management.
+Like any software team, we’ve all felt the frustration of chasing down change requests, lost email threads, and unclear deployment histories. I experienced it firsthand while working on various projects, where keeping track of who requested what, when it was deployed, and what issues followed could become chaotic quickly. That challenge led me to build the **Change Request Tracking System (CRTS)**, a comprehensive, full-stack web application designed to centralize and streamline the management of software change requests across development projects. In environments where accountability and traceability are crucial for quality delivery, CRTS has your back. It keeps projects organized, teams informed, and change management transparent, because when systems work smoothly, so do people.
 
 > **Note**: This project consists of two separate repositories:
 > - **Frontend**: [ChangeRequest_TrackingSystem](https://github.com/N-benitha/ChangeRequest_TrackingSystem.git)
@@ -181,8 +191,8 @@ Password: admin123
 POST /auth/login          # User login
 POST /auth/logout         # User logout
 POST /auth/signup         # User registration
-GET  /auth/me            # Get current user
-POST /auth/refresh       # Refresh JWT token
+GET  /auth/me             # Get current user
+POST /auth/refresh        # Refresh JWT token
 ```
 ### Users (Admin only)
 ```
@@ -210,9 +220,11 @@ DELETE /change-request/:id               # Delete change request
 ```
 ### User-Project Assignment
 ```
-GET    /user-project/by-user/:userId     # Get projects assigned to user
+GET    /user-project/all                 # Get all projects assigned to all users
 POST   /user-project                     # Assign user to project
-DELETE /user-project                     # Remove user from project
+GET    /user-project/:id                 # Get projects assigned to a user
+PATCH  /user-project/:id                 # Update user-projects
+DELETE /user-project/:id                 # Remove user from project
 ```
 
 ## 🚀 Deployment
@@ -326,9 +338,6 @@ export default api;
 Frontend: [ChangeRequest_TrackingSystem](https://github.com/N-benitha/ChangeRequest_TrackingSystem.git)
 Backend: [backend](https://github.com/N-benitha/backend.git)
 
-## 📝 License
-This project is licensed under the [MIT License](LICENSE).
-
 ## 🙏 Acknowledgments
 
 - **ALX Africa** - This project was developed as part of the ALX Software Engineering Program. Special thanks to ALX for providing world-class software engineering education and the opportunity to build real-world applications that solve practical problems.
@@ -337,8 +346,11 @@ This project is licensed under the [MIT License](LICENSE).
 ## 👨‍💻 Author
 **Benitha Ngunga** ngungabn03@gmail.com
 
+## 📝 License
+This project is licensed under the [MIT License](LICENSE).
+
 ## Contact
-For support or inquiries, do not hesitate to contact me here. [LinkedIn](https://www.linkedin.com/in/ngunga-benitha-26b43921b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
+For support or inquiries, do not hesitate to contact me [here](https://www.linkedin.com/in/ngunga-benitha-26b43921b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app).
 
 ⭐ If you found this project helpful, please give both repositories a star!
 
