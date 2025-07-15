@@ -16,12 +16,6 @@
 ## Overview
 Like any software team, we’ve all felt the frustration of chasing down change requests, lost email threads, and unclear deployment histories. I experienced it firsthand while working on various projects, where keeping track of who requested what, when it was deployed, and what issues followed could become chaotic quickly. That challenge led me to build the **Change Request Tracking System (CRTS)**, a comprehensive, full-stack web application designed to centralize and streamline the management of software change requests across development projects. In environments where accountability and traceability are crucial for quality delivery, CRTS has your back. It keeps projects organized, teams informed, and change management transparent, because when systems work smoothly, so do people.
 
-<p align="center">
-  <a href="https://youtu.be/dvN3Xt_-GRU?si=NfsjnWtLJIOfIrCT">
-    <img src="https://img.youtube.com/vi/dvN3Xt_-GRU/0.jpg" alt="Watch Demo Video" />
-  </a>
-</p>
-
 > **Note**: This project consists of two separate repositories:
 > - **Frontend**: [ChangeRequest_TrackingSystem](https://github.com/N-benitha/ChangeRequest_TrackingSystem.git)
 > - **Backend**: [backend](https://github.com/N-benitha/backend.git)
