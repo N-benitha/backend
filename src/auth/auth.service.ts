@@ -29,10 +29,16 @@ type AuthResult = {
 @Injectable()
 export class AuthService {
     constructor(
-        private userSerice: UserService,
+        private userService: UserService,
         private jwtService: JwtService,
     ) {}
 
+    /**
+     * Main authentication method that validates credentials and returns JWT token
+     * @param input - User email and password
+     * @returns AuthResult with access token and user data
+     * @throws UnauthorizedException if credentials are invalid
+     */
     async authenticate(input: AuthInput): Promise<AuthResult | null> {
         const user = await this.validateUser(input);
 
@@ -40,9 +46,14 @@ export class AuthService {
 
         return this.signIn(user);
     }
-        
+    
+    /**
+     * Validates user credentials against database
+     * @param input - User email and password
+     * @returns SignInData if credentials are valid, null otherwise
+     */
     async validateUser(input: AuthInput): Promise<SignInData | null> {
-        const user = await this.userSerice.findOne({where: {email: input.email}});
+        const user = await this.userService.findOne({where: {email: input.email}});
 
         if (user && (await bcrypt.compare(input.password, user.password))) {
             return {
@@ -56,6 +67,12 @@ export class AuthService {
         return null;
     }
 
+    /**
+     * Generates JWT token for authenticated user
+     * @param user - Validated user data
+     * @returns AuthResult with JWT token and user information
+     * @throws UnauthorizedException if token generation fails
+     */
     async signIn(user: SignInData): Promise<AuthResult | null>  {
         try {
             const payload = { 

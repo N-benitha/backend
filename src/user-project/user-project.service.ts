@@ -7,6 +7,10 @@ import { FindOneOptions, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Project } from 'src/project/entities/project.entity';
 
+/**
+ * Service for managing user-project associations in the Change Request Tracking System
+ * Handles CRUD operations for linking users to projects they can work on
+ */
 @Injectable()
 export class UserProjectService {
   constructor (
@@ -18,6 +22,10 @@ export class UserProjectService {
     private projectRepository: Repository<Project>
   ) {}
 
+  /**
+   * Creates a new user-project association
+   * Prevents duplicate associations by checking if the relationship already exists
+   */
   async create(createUserProjectDto: CreateUserProjectDto) {
     // check if association already exists
     const existingAssociation = await this.userProjectsRepository.findOne({
@@ -58,6 +66,10 @@ export class UserProjectService {
     });
   }
 
+   /**
+   * Retrieves all projects associated with a specific user
+   * Used to determine which projects a user can create/view change requests for
+   */
   async findUserProjects(userId: string): Promise<UserProject[]> {
     return this.userProjectsRepository.find({
       where: { user: { id: userId } },
@@ -65,6 +77,10 @@ export class UserProjectService {
     });
   }
 
+  /**
+   * Finds specific user-project association by both user and project IDs
+   * Used to verify if a user has access to a particular project
+   */
   async findUserProjectByUserAndProject(userId: string, projectId: string): Promise<UserProject[]> {
     return this.userProjectsRepository.find({
       where: {
@@ -75,6 +91,10 @@ export class UserProjectService {
     });
   }
 
+  /**
+   * Updates an existing user-project association
+   * Can modify either the user or project in the relationship
+   */
   async update(id: string, updateUserProjectDto: UpdateUserProjectDto) {
     const userProject = await this.userProjectsRepository.findOne({ where: { id } });
     if (!userProject) {
@@ -98,6 +118,10 @@ export class UserProjectService {
     return this.userProjectsRepository.save(userProject);
   }
 
+  /**
+   * Removes a user-project association
+   * This will prevent the user from accessing the project for change requests
+   */
   async remove(id: string): Promise<void> {
     await this.userProjectsRepository.delete(id);
   }

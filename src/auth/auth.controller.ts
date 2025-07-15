@@ -7,6 +7,14 @@ import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { UserType } from 'src/user/entities/enums/user-type.enum';
 
+/**
+ * Authentication controller handling user login, signup, logout, and token management.
+ * 
+ * Implements JWT-based authentication with HttpOnly cookies for security.
+ * Provides role-based redirect paths for different user types in the change request system.
+ * 
+ * @controller auth
+ */
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -14,6 +22,12 @@ export class AuthController {
         private userService: UserService
     ) {}
 
+    /**
+     * User login endpoint
+     * 
+     * Authenticates user credentials and sets secure JWT cookie.
+     * Returns appropriate redirect path based on user role.
+     */
     @Post('login')
     async login(
         @Body() input: {email: string, password: string},
@@ -21,12 +35,15 @@ export class AuthController {
       ) {
         const result = await this.authService.authenticate(input);
 
+        // Set secure JWT cookie with production-appropriate security settings
         response.cookie('jwt', result?.user.accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours expiry
         });
+
+        // Determine where to redirect user based on their role
         const redirectPath = this.getRedirectPathByRole(result?.user.user_type ?? '');
 
         return {
@@ -35,6 +52,12 @@ export class AuthController {
         };
       }
     
+    /**
+     * User registration endpoint
+     * 
+     * Creates new user account with hashed password.
+     * Note: New users have no role assigned initially.
+     */
     @Post('signup')
       async signup(
         @Body() 
@@ -59,6 +82,12 @@ export class AuthController {
         };
     }
 
+    /**
+     * User logout endpoint
+     * 
+     * Clears JWT cookie to invalidate session.
+     * Requires authentication to prevent unauthorized logout attempts.
+     */
     @Post('logout')
     @UseGuards(AuthGuard)
     async logout(@Res({passthrough: true}) response: Response) {
@@ -73,6 +102,12 @@ export class AuthController {
         };
     }
 
+    /**
+     * Get current authenticated user information
+     * 
+     * Returns user details and appropriate redirect path for their role.
+     * Used for session validation and role-based routing.
+     */
     @Get('me')
     @UseGuards(AuthGuard)
     async getCurrentUser(@CurrentUser() user: any) {
@@ -91,6 +126,12 @@ export class AuthController {
         };
     }
 
+    /**
+     * Refresh JWT token endpoint
+     * 
+     * Generates new token for authenticated user and updates cookie.
+     * Extends user session without requiring re-authentication.
+     */
     @Post('refresh')
     @UseGuards(AuthGuard)
     async refreshToken(
@@ -123,6 +164,17 @@ export class AuthController {
         };
     }
 
+    /**
+     * Maps user roles to their respective dashboard routes
+     * 
+     * Implements role-based access control for the change request tracking system:
+     * - Admin: Full system administration
+     * - Approver: Change request approval workflow  
+     * - Developer: Change request submission
+     * 
+     * @param userType - The user's role type
+     * @returns Appropriate dashboard route for the user role
+     */
     private getRedirectPathByRole(userType: string): string {
         switch(userType) {
             case UserType.ADMIN:
@@ -135,7 +187,7 @@ export class AuthController {
                 return 'dashboards/developer';
 
             default:
-                return '/dashboards'; //fallback roure
+                return '/dashboards'; //fallback route
         }
     }
 
